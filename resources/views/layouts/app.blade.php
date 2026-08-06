@@ -55,6 +55,25 @@
                                     </a>
                                 </li>
                             @endif
+                            @if(Auth::user()->isStudent())
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('student.events.index') ? 'active' : '' }}" href="{{ route('student.events.index') }}">
+                                        <i class="fa-solid fa-calendar-days me-1"></i> Khám Phá Sự Kiện
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('student.my_tickets') ? 'active' : '' }}" href="{{ route('student.my_tickets') }}">
+                                        <i class="fa-solid fa-ticket me-1"></i> Vé Của Tôi
+                                    </a>
+                                </li>
+                            @endif
+                            @if(Auth::user()->isClubManager())
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('manager.checkin.index') ? 'active' : '' }}" href="{{ route('manager.checkin.index') }}">
+                                        <i class="fa-solid fa-qrcode me-1"></i> Quét QR Check-in
+                                    </a>
+                                </li>
+                            @endif
                         @endauth
                     </ul>
 
