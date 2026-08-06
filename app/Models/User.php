@@ -22,6 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'student_code',
+        'role',
     ];
 
     /**
@@ -45,5 +47,32 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function clubMemberships()
+    {
+        return $this->hasMany(ClubMember::class);
+    }
+
+    public function clubs()
+    {
+        return $this->belongsToMany(Club::class, 'club_members')
+                    ->withPivot('role', 'is_manager')
+                    ->withTimestamps();
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isClubManager(): bool
+    {
+        return $this->role === 'club_manager';
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->role === 'student';
     }
 }

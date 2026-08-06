@@ -12,12 +12,14 @@ return new class extends Migration
     public function up(): void
     {
        Schema::create('clubs', function (Blueprint $table) {
-        $table->id();
-        $table->string('name'); // Tên CLB
-        $table->text('description')->nullable(); 
-        $table->foreignId('manager_id')->constrained('users')->onDelete('cascade'); // Ai là chủ nhiệm
-        $table->timestamps();
-    });
+            $table->id();
+            $table->string('name')->unique();
+            $table->string('code')->nullable()->unique();
+            $table->text('description')->nullable();
+            $table->string('logo')->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->timestamps();
+        });
     }
 
     /**

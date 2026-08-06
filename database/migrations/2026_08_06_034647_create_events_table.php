@@ -14,12 +14,13 @@ return new class extends Migration
       Schema::create('events', function (Blueprint $table) {
         $table->id();
         $table->foreignId('club_id')->constrained()->onDelete('cascade'); // Sự kiện của CLB nào
+        $table->foreignId('category_id')->nullable()->constrained('event_categories')->onDelete('set null'); // Danh mục sự kiện
         $table->string('name');
-        $table->text('description');
-        $table->string('location'); 
-        $table->integer('capacity'); // Sức chứa tối đa (Ràng buộc quan trọng)
-        $table->dateTime('start_time');
-        $table->dateTime('end_time');
+        $table->text('description')->nullable();
+        $table->string('location')->nullable(); 
+        $table->integer('capacity')->default(100); // Sức chứa tối đa (Ràng buộc quan trọng)
+        $table->dateTime('start_time')->nullable();
+        $table->dateTime('end_time')->nullable();
         $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending'); // Cán bộ duyệt
         $table->timestamps();
     });
