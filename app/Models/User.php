@@ -67,6 +67,8 @@ class User extends Authenticatable
     public function studentPoints()
     {
         return $this->hasMany(StudentPoint::class);
+    }
+
     public function clubs()
     {
         return $this->belongsToMany(Club::class, 'club_members')

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Club extends Model
 {
-    protected $fillable = ['name', 'code', 'description', 'logo', 'status'];
+    protected $fillable = ['name', 'code', 'description', 'logo', 'status', 'manager_id'];
 
     public function members()
     {
@@ -39,9 +39,4 @@ class Club extends Model
         return $this->belongsTo(User::class, 'manager_id');
     }
 
-    // Các thành viên trong CLB
-    public function members()
-    {
-        return $this->hasMany(ClubMember::class);
-    }
 }
