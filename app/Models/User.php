@@ -67,5 +67,25 @@ class User extends Authenticatable
     public function studentPoints()
     {
         return $this->hasMany(StudentPoint::class);
+    public function clubs()
+    {
+        return $this->belongsToMany(Club::class, 'club_members')
+                    ->withPivot('role', 'is_manager')
+                    ->withTimestamps();
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isClubManager(): bool
+    {
+        return $this->role === 'club_manager';
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->role === 'student';
     }
 }
