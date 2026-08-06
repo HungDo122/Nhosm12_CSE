@@ -1,59 +1,134 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ĐỀ TÀI 5: QUẢN LÝ CÂU LẠC BỘ, SỰ KIỆN VÀ ĐIỂM HOẠT ĐỘNG SINH VIÊN
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **Hệ thống Quản lý Câu lạc bộ & Điểm hoạt động Sinh viên - TLU Club Manager**  
+> **Nhóm thực hiện:** Nhóm 12 - CSE  
+> **Repository GitHub:** [https://github.com/HungDo122/Nhosm12_CSE](https://github.com/HungDo122/Nhosm12_CSE)
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🛠 Công Nghệ Sử Dụng (Tech Stack)
+- **Backend Framework:** PHP 8.2+ / Laravel 11
+- **Database:** SQLite / MySQL
+- **Frontend / UI:** Blade Templates, Bootstrap 5, FontAwesome 6
+- **Authentication & Authorization:** Custom Middleware `CheckRole` (Admin, Club Manager, Student)
+- **Diagram Tool:** Mermaid.js ERD
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 📊 Sơ Đồ Cơ Sở Dữ Liệu (ERD)
 
-## Learning Laravel
+```mermaid
+erDiagram
+    USERS ||--o{ CLUB_MEMBERS : "has"
+    USERS ||--o{ EVENT_REGISTRATIONS : "registers"
+    USERS ||--o{ STUDENT_POINTS : "earns"
+    
+    CLUBS ||--o{ CLUB_MEMBERS : "contains"
+    CLUBS ||--o{ EVENTS : "organizes"
+    
+    EVENT_CATEGORIES ||--o{ EVENTS : "categorizes"
+    
+    EVENTS ||--o{ EVENT_REGISTRATIONS : "has"
+    EVENTS ||--o{ STUDENT_POINTS : "grants"
+    
+    EVENT_REGISTRATIONS ||--o| CHECKIN_LOGS : "logs"
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+    USERS {
+        bigint id PK
+        string name
+        string email
+        string student_code
+        string role "admin, club_manager, student"
+    }
+    CLUBS {
+        bigint id PK
+        string name
+        string code
+        text description
+        string status "active, inactive"
+    }
+    CLUB_MEMBERS {
+        bigint id PK
+        bigint club_id FK
+        bigint user_id FK
+        string role "leader, member"
+        boolean is_manager
+    }
+    EVENT_CATEGORIES {
+        bigint id PK
+        string name
+        text description
+    }
+    EVENTS {
+        bigint id PK
+        bigint club_id FK
+        bigint category_id FK
+        string name
+        int capacity
+        datetime start_time
+    }
+    EVENT_REGISTRATIONS {
+        bigint id PK
+        bigint event_id FK
+        bigint user_id FK
+        string qr_code_string
+    }
+    CHECKIN_LOGS {
+        bigint id PK
+        bigint registration_id FK
+        datetime checkin_time
+    }
+    STUDENT_POINTS {
+        bigint id PK
+        bigint user_id FK
+        bigint event_id FK
+        int points
+    }
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🚀 Hướng Dẫn Chạy Ứng Dụng (Local Setup)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 1. Clone Repository & Cài đặt gói phụ thuộc
+```bash
+git clone https://github.com/HungDo122/Nhosm12_CSE.git
+cd Nhosm12_CSE
+composer install
+npm install
+```
 
-### Premium Partners
+### 2. Cấu hình môi trường (.env)
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 3. Khởi tạo Cơ sở dữ liệu & Nạp dữ liệu mẫu (Seeder)
+```bash
+php artisan migrate:fresh --seed
+```
 
-## Contributing
+### 4. Khởi chạy Server
+```bash
+php artisan serve
+```
+Truy cập ứng dụng tại địa chỉ: `http://127.0.0.1:8000`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🔑 Tài Khoản Dùng Thử (Default Credentials)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Vai trò | Email | Mật khẩu | Mã SV |
+| :--- | :--- | :--- | :--- |
+| **Quản trị viên (Admin)** | `admin@tlu.edu.vn` | `123456` | ADMIN001 |
+| **Chủ nhiệm CLB IT** | `it.cn@tlu.edu.vn` | `123456` | A35001 |
+| **Chủ nhiệm CLB Âm nhạc** | `music.cn@tlu.edu.vn` | `123456` | A35002 |
+| **Sinh viên 1** | `student1@tlu.edu.vn` | `123456` | A36101 |
+| **Sinh viên 2** | `student2@tlu.edu.vn` | `123456` | A36102 |
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 👥 Phân Công Module Trong Nhóm
+- **Thành viên A:** Quản lý Người dùng (`users`), Quản lý Câu lạc bộ (`clubs`), Thành viên CLB (`club_members`), Danh mục sự kiện (`event_categories`), Phân quyền Middleware.
+- **Thành viên B:** Quản lý Sự kiện (`events`), Đăng ký tham gia (`event_registrations`), Điểm danh QR (`checkin_logs`), Điểm hoạt động (`student_points`).
