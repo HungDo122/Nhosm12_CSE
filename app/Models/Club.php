@@ -19,4 +19,10 @@ class Club extends Model
     {
         return $this->belongsTo(User::class, 'manager_id');
     }
+
+    // Các thành viên trong CLB
+    public function members()
+    {
+        return $this->hasMany(ClubMember::class);
+    }
 }

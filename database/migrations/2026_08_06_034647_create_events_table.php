@@ -6,28 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-      Schema::create('events', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('club_id')->constrained()->onDelete('cascade'); // Sự kiện của CLB nào
-        $table->string('name');
-        $table->text('description');
-        $table->string('location'); 
-        $table->integer('capacity'); // Sức chứa tối đa (Ràng buộc quan trọng)
-        $table->dateTime('start_time');
-        $table->dateTime('end_time');
-        $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending'); // Cán bộ duyệt
-        $table->timestamps();
-    });
+        Schema::create('events', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('club_id')->constrained()->onDelete('cascade');
+            $table->foreignId('category_id')->constrained('event_categories')->onDelete('cascade');
+            $table->string('name');
+            $table->text('description');
+            $table->string('location'); 
+            $table->integer('capacity');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->timestamps();
+            $table->softDeletes();
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('events');

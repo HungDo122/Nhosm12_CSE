@@ -8,19 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('event_registrations', function (Blueprint $table) {
+        Schema::create('club_members', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_id')->constrained()->onDelete('cascade');
+            $table->foreignId('club_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('qr_code_string')->unique();
+            $table->enum('role', ['leader', 'member'])->default('member');
             $table->timestamps();
             
-            $table->unique(['event_id', 'user_id']); // Prevent duplicate registration
+            $table->unique(['club_id', 'user_id']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('event_registrations');
+        Schema::dropIfExists('club_members');
     }
 };

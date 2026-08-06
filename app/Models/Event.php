@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Event extends Model
 {
-    protected $fillable = ['club_id', 'name', 'description', 'location', 'capacity', 'start_time', 'end_time', 'status'];
+    use SoftDeletes;
+
+    protected $fillable = ['club_id', 'category_id', 'name', 'description', 'location', 'capacity', 'start_time', 'end_time', 'status'];
 
     // Sự kiện thuộc về 1 CLB
     public function club()
@@ -18,5 +21,11 @@ class Event extends Model
     public function registrations()
     {
         return $this->hasMany(EventRegistration::class);
+    }
+
+    // Sự kiện thuộc về 1 Category
+    public function category()
+    {
+        return $this->belongsTo(EventCategory::class);
     }
 }
