@@ -29,6 +29,11 @@ Route::middleware(['auth', 'role:admin,club_manager'])->group(function () {
     Route::post('/manager/checkin/process', [App\Http\Controllers\Manager\CheckinController::class, 'process'])->name('manager.checkin.process');
 });
 
+// Routes dùng chung cho Admin và Club Manager (Quản lý Sự kiện)
+Route::middleware(['auth', 'role:admin,club_manager'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('events', App\Http\Controllers\Admin\EventController::class);
+});
+
 // Routes dành cho Admin (Quản lý CLB, Thành viên CLB, Danh mục sự kiện, Người dùng)
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('clubs', ClubController::class);

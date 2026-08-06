@@ -45,6 +45,11 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->is('admin/events*') ? 'active' : '' }}" href="{{ route('admin.events.index') }}">
+                                        <i class="fa-solid fa-calendar-check me-1"></i> Quản Lý Sự Kiện
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->is('admin/categories*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">
                                         <i class="fa-solid fa-tags me-1"></i> Danh Mục Sự Kiện
                                     </a>
@@ -68,6 +73,11 @@
                                 </li>
                             @endif
                             @if(Auth::user()->isClubManager())
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.events.index') ? 'active' : '' }}" href="{{ route('admin.events.index') }}">
+                                        <i class="fa-solid fa-calendar-check me-1"></i> Quản Lý Sự Kiện
+                                    </a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('manager.checkin.index') ? 'active' : '' }}" href="{{ route('manager.checkin.index') }}">
                                         <i class="fa-solid fa-qrcode me-1"></i> Quét QR Check-in

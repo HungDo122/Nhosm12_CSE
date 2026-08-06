@@ -3,12 +3,7 @@
 @section('content')
 <div class="container">
     <h2 class="mb-4">Khám phá Sự kiện</h2>
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+
     <div class="row">
         @foreach($events as $event)
         <div class="col-md-4 mb-4">
