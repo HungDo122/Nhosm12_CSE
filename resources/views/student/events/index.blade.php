@@ -21,8 +21,9 @@
                     <p class="mb-1 small"><strong>🕒 Thời gian:</strong> {{ \Carbon\Carbon::parse($event->start_time)->format('d/m/Y H:i') }}</p>
                     <div class="mt-3">
                         @php
-                            $registered = $event->registrations()->count();
-                            $percent = ($registered / $event->capacity) * 100;
+                            // Sử dụng registrations_count đã được load sẵn bằng withCount() — không gọi DB thêm
+                            $registered = $event->registrations_count;
+                            $percent = $event->capacity > 0 ? ($registered / $event->capacity) * 100 : 100;
                         @endphp
                         <div class="d-flex justify-content-between mb-1">
                             <small class="text-muted">Slot đăng ký</small>
@@ -36,8 +37,9 @@
                 <div class="card-footer bg-white border-top-0 pb-3 pt-0">
                     <form action="{{ route('student.events.register', $event->id) }}" method="POST">
                         @csrf
-                        <button type="submit" class="btn btn-primary w-100 shadow-sm" style="border-radius: 8px;" {{ $percent >= 100 ? 'disabled' : '' }}>
-                            {{ $percent >= 100 ? 'Đã hết chỗ' : 'Đăng ký tham gia' }}
+                        {{-- Dùng accessor $event->is_full thay vì kiểm tra thủ công --}}
+                        <button type="submit" class="btn btn-primary w-100 shadow-sm" style="border-radius: 8px;" {{ $event->is_full ? 'disabled' : '' }}>
+                            {{ $event->is_full ? 'Đã hết chỗ' : 'Đăng ký tham gia' }}
                         </button>
                     </form>
                 </div>

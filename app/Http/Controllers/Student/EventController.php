@@ -16,7 +16,9 @@ class EventController extends Controller
 {
     public function index()
     {
+        // withCount giải quyết N+1 query: chỉ 1 query thêm thay vì N query trong vòng lặp
         $events = Event::with('category')
+            ->withCount('registrations')
             ->where('status', 'approved')
             ->orderBy('start_time', 'asc')
             ->get();
@@ -26,7 +28,7 @@ class EventController extends Controller
 
     public function myTickets()
     {
-        $registrations = EventRegistration::with('event')
+        $registrations = EventRegistration::with(['event', 'checkinLog'])
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->get();
@@ -73,7 +75,8 @@ class EventController extends Controller
             
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
+            // Không lộ thông tin lỗi nội bộ ra ngoài
+            return redirect()->back()->with('error', 'Đăng ký thất bại, vui lòng thử lại sau.');
         }
     }
 
@@ -88,6 +91,8 @@ class EventController extends Controller
         }
 
         $pdf = Pdf::loadView('student.events.certificate', compact('registration'));
-        return $pdf->download('chung-nhan-' . $registration->event->id . '.pdf');
+        // Dùng tên sự kiện thay vì ID để tên file có ý nghĩa hơn
+        $filename = 'chung-nhan-' . \Illuminate\Support\Str::slug($registration->event->name) . '.pdf';
+        return $pdf->download($filename);
     }
 }

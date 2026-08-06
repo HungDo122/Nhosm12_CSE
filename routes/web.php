@@ -23,8 +23,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/student/events/{id}/certificate', [App\Http\Controllers\Student\EventController::class, 'downloadCertificate'])->name('student.events.certificate');
 });
 
-// Routes cho Manager (Quản lý Check-in)
-Route::middleware(['auth'])->group(function () {
+// Routes cho Manager (Quản lý Check-in) — chỉ admin và club_manager mới được vào
+Route::middleware(['auth', 'role:admin,club_manager'])->group(function () {
     Route::get('/manager/checkin', [App\Http\Controllers\Manager\CheckinController::class, 'index'])->name('manager.checkin.index');
     Route::post('/manager/checkin/process', [App\Http\Controllers\Manager\CheckinController::class, 'process'])->name('manager.checkin.process');
 });

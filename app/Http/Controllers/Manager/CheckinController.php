@@ -35,6 +35,7 @@ class CheckinController extends Controller
             $registration = EventRegistration::with('user')
                 ->where('qr_code_string', $qrString)
                 ->where('event_id', $eventId)
+                ->lockForUpdate()
                 ->first();
 
             if (!$registration) {
@@ -71,7 +72,8 @@ class CheckinController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()]);
+            // Không lộ thông tin lỗi nội bộ ra ngoài
+            return response()->json(['success' => false, 'message' => 'Lỗi hệ thống, vui lòng thử lại.']);
         }
     }
 }

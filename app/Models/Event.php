@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Event extends Model
 {
@@ -27,5 +28,18 @@ class Event extends Model
     public function category()
     {
         return $this->belongsTo(EventCategory::class);
+    }
+
+    // Scope: chỉ lấy sự kiện đã được duyệt
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    // Accessor: kiểm tra sự kiện đã hết slot chưa (dùng withCount)
+    public function getIsFullAttribute(): bool
+    {
+        $count = $this->registrations_count ?? $this->registrations()->count();
+        return $count >= $this->capacity;
     }
 }
