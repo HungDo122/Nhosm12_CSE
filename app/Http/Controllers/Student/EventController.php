@@ -82,12 +82,20 @@ class EventController extends Controller
 
     public function downloadCertificate($id)
     {
-        $registration = EventRegistration::with(['event', 'user', 'checkinLog'])
+        $registration = EventRegistration::with([
+                'event' => fn($q) => $q->withTrashed(),
+                'user',
+                'checkinLog'
+            ])
             ->where('user_id', Auth::id())
             ->findOrFail($id);
 
         if (!$registration->checkinLog) {
             return redirect()->back()->with('error', 'Bạn chưa tham gia sự kiện này nên không thể tải chứng nhận!');
+        }
+
+        if (!$registration->event) {
+            return redirect()->back()->with('error', 'Sự kiện không còn tồn tại!');
         }
 
         $pdf = Pdf::loadView('student.events.certificate', compact('registration'));
