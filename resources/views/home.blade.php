@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Trang Chủ - TLU Club Manager')
+
 @section('content')
 <div class="container">
     <div class="row justify-content-center">

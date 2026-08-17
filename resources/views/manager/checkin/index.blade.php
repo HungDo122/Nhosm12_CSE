@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Quét QR Check-in - TLU Club Manager')
+
 @section('content')
 <div class="container">
     <h2 class="mb-4 text-center fw-bold text-primary">Quét QR Check-in</h2>

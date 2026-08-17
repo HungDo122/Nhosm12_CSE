@@ -70,7 +70,7 @@ class EventController extends Controller
             }
         }
 
-        $data = $request->all();
+        $data = $request->validated();
         if (!$user->isAdmin()) {
             $data['status'] = 'pending';
         }
@@ -130,7 +130,7 @@ class EventController extends Controller
 
         $request->validate($rules);
 
-        $data = $request->all();
+        $data = $request->validated();
         
         // Cập nhật sự kiện, nếu manager cập nhật thì nó có thể bị chuyển về pending lại (tùy logic, ở đây giữ nguyên hoặc chuyển về pending).
         // Để đơn giản: Manager không đổi được status.

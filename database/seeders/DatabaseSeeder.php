@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         $admin = User::firstOrCreate(
             ['email' => 'admin@tlu.edu.vn'],
             [
-                'name' => 'Cán Bị Đoàn Trường',
+                'name' => 'Cán Bộ Đoàn Trường',
                 'password' => Hash::make('123456'),
                 'role' => 'admin',
                 'student_code' => 'ADMIN001'
@@ -105,12 +105,12 @@ class DatabaseSeeder extends Seeder
         );
 
         // 4. Tạo Danh mục sự kiện mẫu
-        EventCategory::firstOrCreate(
+        $catAcad = EventCategory::firstOrCreate(
             ['name' => 'Học thuật & Trí tuệ'],
             ['description' => 'Hội thảo chuyên môn, Cuộc thi lập trình, Hackathon và Workshop kiến thức.']
         );
 
-        EventCategory::firstOrCreate(
+        $catMusic = EventCategory::firstOrCreate(
             ['name' => 'Văn nghệ & Giải trí'],
             ['description' => 'Đêm nhạc sinh viên, Giao lưu văn hóa, Cuộc thi tài năng.']
         );
@@ -123,6 +123,35 @@ class DatabaseSeeder extends Seeder
         EventCategory::firstOrCreate(
             ['name' => 'Tình nguyện & Xã hội'],
             ['description' => 'Mùa hè xanh, Tiếp sức mùa thi, Hiến máu nhân đạo.']
+        );
+
+        // 5. Tạo Sự kiện mẫu (Events)
+        \App\Models\Event::firstOrCreate(
+            ['name' => 'Cuộc thi Lập trình sinh viên TLU 2026'],
+            [
+                'club_id' => $clubIT->id,
+                'category_id' => $catAcad->id,
+                'description' => 'Cuộc thi lập trình thuật toán dành cho sinh viên với nhiều giải thưởng hấp dẫn.',
+                'location' => 'Hội trường 1',
+                'capacity' => 100,
+                'start_time' => now()->addDays(5)->setTime(8, 0),
+                'end_time' => now()->addDays(5)->setTime(12, 0),
+                'status' => 'approved'
+            ]
+        );
+
+        \App\Models\Event::firstOrCreate(
+            ['name' => 'Đêm nhạc Acoustic Chào Tân Sinh Viên'],
+            [
+                'club_id' => $clubMusic->id,
+                'category_id' => $catMusic->id,
+                'description' => 'Đêm nhạc giao lưu chào đón tân sinh viên khóa mới.',
+                'location' => 'Sân vận động',
+                'capacity' => 300,
+                'start_time' => now()->addDays(10)->setTime(19, 0),
+                'end_time' => now()->addDays(10)->setTime(22, 0),
+                'status' => 'approved'
+            ]
         );
     }
 }

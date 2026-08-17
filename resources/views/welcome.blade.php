@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hệ Thống Quản Lý Câu Lạc Bộ</title>
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -33,8 +33,15 @@
                 
                 <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
                     @auth
-                        <a href="{{ route('student.events.index') }}" class="btn btn-primary btn-lg px-4 gap-3 rounded-pill shadow-sm">Vào Trang Sinh Viên</a>
-                        <a href="{{ route('manager.checkin.index') }}" class="btn btn-outline-secondary btn-lg px-4 rounded-pill shadow-sm">Vào Trang Check-in</a>
+                        @if(Auth::user()->isStudent())
+                            <a href="{{ route('student.events.index') }}" class="btn btn-primary btn-lg px-4 gap-3 rounded-pill shadow-sm">Vào Trang Sinh Viên</a>
+                        @endif
+                        @if(Auth::user()->isClubManager())
+                            <a href="{{ route('manager.checkin.index') }}" class="btn btn-outline-secondary btn-lg px-4 rounded-pill shadow-sm">Vào Trang Check-in</a>
+                        @endif
+                        @if(Auth::user()->isAdmin())
+                            <a href="{{ route('admin.clubs.index') }}" class="btn btn-primary btn-lg px-4 gap-3 rounded-pill shadow-sm">Vào Trang Quản Trị</a>
+                        @endif
                     @else
                         <a href="{{ route('login') }}" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm fw-bold">Đăng Nhập</a>
                         <a href="{{ route('register') }}" class="btn btn-outline-primary btn-lg px-5 rounded-pill fw-bold">Đăng Ký</a>

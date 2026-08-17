@@ -52,7 +52,7 @@ class User extends Authenticatable
     public function managedClubs()
     {
         return $this->belongsToMany(Club::class, 'club_members')
-                    ->wherePivot('is_manager', true)
+                    ->wherePivot('role', 'leader')
                     ->withPivot('role', 'is_manager')
                     ->withTimestamps();
     }

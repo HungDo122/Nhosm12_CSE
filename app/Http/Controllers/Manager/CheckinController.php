@@ -16,7 +16,10 @@ class CheckinController extends Controller
     public function index()
     {
         // Danh sách sự kiện đã duyệt và (có thể) đang diễn ra
-        $events = Event::where('status', 'approved')->orderBy('start_time', 'desc')->get();
+        $events = Event::where('status', 'approved')
+            ->where('end_time', '>=', Carbon::now())
+            ->orderBy('start_time', 'desc')
+            ->get();
         return view('manager.checkin.index', compact('events'));
     }
 
