@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Quét QR Check-in - TLU Club Manager')
+
 @section('content')
 <div class="container">
     <h2 class="mb-4 text-center fw-bold text-primary">Quét QR Check-in</h2>
@@ -19,6 +21,15 @@
                     
                     <div id="reader" style="width: 100%; display: none; border-radius: 12px; overflow: hidden;" class="shadow-sm border"></div>
                     
+                    <div id="manualCheckinWrapper" class="mt-4" style="display: none;">
+                        <hr>
+                        <p class="text-center text-muted mb-2">Hoặc nhập mã thủ công nếu không quét được ảnh:</p>
+                        <div class="input-group">
+                            <input type="text" id="manualCode" class="form-control" placeholder="Nhập mã vé (VD: EVENT_...)">
+                            <button class="btn btn-outline-primary" type="button" id="btnManualCheckin">Check-in</button>
+                        </div>
+                    </div>
+
                     <div id="resultBox" class="alert mt-4 text-center fs-5" style="display: none; border-radius: 8px;"></div>
                 </div>
             </div>
@@ -35,6 +46,7 @@
     document.addEventListener("DOMContentLoaded", function() {
         const eventSelect = document.getElementById('eventSelect');
         const readerDiv = document.getElementById('reader');
+        const manualCheckinWrapper = document.getElementById('manualCheckinWrapper');
         const resultBox = document.getElementById('resultBox');
         
         let html5QrcodeScanner = null;
@@ -43,6 +55,7 @@
         eventSelect.addEventListener('change', function() {
             if (this.value) {
                 readerDiv.style.display = 'block';
+                manualCheckinWrapper.style.display = 'block';
                 if (!html5QrcodeScanner) {
                     html5QrcodeScanner = new Html5QrcodeScanner(
                         "reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
@@ -50,6 +63,7 @@
                 }
             } else {
                 readerDiv.style.display = 'none';
+                manualCheckinWrapper.style.display = 'none';
                 if (html5QrcodeScanner) {
                     html5QrcodeScanner.clear();
                     html5QrcodeScanner = null;
@@ -64,7 +78,13 @@
             const eventId = eventSelect.value;
             
             // Tạm dừng quét
-            html5QrcodeScanner.pause();
+            try {
+                if (html5QrcodeScanner) {
+                    html5QrcodeScanner.pause();
+                }
+            } catch (e) {
+                console.warn('Cannot pause scanner:', e);
+            }
             
             resultBox.style.display = 'block';
             resultBox.className = 'alert alert-info';
@@ -94,7 +114,13 @@
                 setTimeout(() => {
                     resultBox.style.display = 'none';
                     isProcessing = false;
-                    html5QrcodeScanner.resume();
+                    try {
+                        if (html5QrcodeScanner) {
+                            html5QrcodeScanner.resume();
+                        }
+                    } catch (e) {
+                        console.warn('Cannot resume scanner:', e);
+                    }
                 }, 2500);
             })
             .catch(error => {
@@ -105,7 +131,13 @@
                 setTimeout(() => {
                     resultBox.style.display = 'none';
                     isProcessing = false;
-                    html5QrcodeScanner.resume();
+                    try {
+                        if (html5QrcodeScanner) {
+                            html5QrcodeScanner.resume();
+                        }
+                    } catch (e) {
+                        console.warn('Cannot resume scanner:', e);
+                    }
                 }, 2500);
             });
         }
@@ -113,6 +145,16 @@
         function onScanFailure(error) {
             // Do nothing
         }
+
+        document.getElementById('btnManualCheckin').addEventListener('click', function() {
+            const manualCode = document.getElementById('manualCode').value.trim();
+            if (manualCode) {
+                onScanSuccess(manualCode, null);
+                document.getElementById('manualCode').value = '';
+            } else {
+                alert('Vui lòng nhập mã vé!');
+            }
+        });
     });
 </script>
 @endsection

@@ -7,6 +7,7 @@
         <h2 class="fw-bold mb-1"><i class="fa-solid fa-calendar-check text-primary me-2"></i>Quản Lý Sự Kiện</h2>
         <p class="text-muted mb-0">Xem, duyệt và quản lý toàn bộ sự kiện từ các câu lạc bộ</p>
     </div>
+    <a href="{{ route('admin.events.create') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-1"></i>Tạo sự kiện</a>
 </div>
 
 {{-- Flash Messages --}}
@@ -103,7 +104,7 @@
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white py-3 fw-bold">
         <i class="fa-solid fa-list text-primary me-2"></i>Danh Sách Sự Kiện
-        <span class="badge bg-secondary ms-1">{{ $events->total() }}</span>
+        <span class="badge bg-secondary ms-1">{{ $events->total() ?? 0 }}</span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -141,7 +142,7 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            <span class="fw-semibold">{{ $event->registrations_count }}</span>
+                            <span class="fw-semibold">{{ $event->registrations_count ?? 0 }}</span>
                             <span class="text-muted small">/ {{ $event->capacity }}</span>
                         </td>
                         <td class="text-center">
@@ -156,13 +157,13 @@
                         <td class="text-end pe-3">
                             <div class="d-flex justify-content-end gap-1 flex-wrap">
                                 {{-- Nút duyệt --}}
-                                @if($event->status === 'pending')
+                                @if($event->status === 'pending' && Auth::user()->isAdmin())
                                     <form action="{{ route('admin.events.approve', $event->id) }}" method="POST" class="d-inline"
                                           onsubmit="return confirm('Duyệt sự kiện: {{ $event->name }}?')">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="btn btn-sm btn-success" title="Duyệt">
-                                            <i class="fa-solid fa-check"></i> Duyệt
+                                            <i class="fa-solid fa-check"></i>
                                         </button>
                                     </form>
                                     <form action="{{ route('admin.events.reject', $event->id) }}" method="POST" class="d-inline"
@@ -170,7 +171,7 @@
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Từ chối">
-                                            <i class="fa-solid fa-xmark"></i> Từ chối
+                                            <i class="fa-solid fa-xmark"></i>
                                         </button>
                                     </form>
                                 @endif
@@ -178,6 +179,11 @@
                                 {{-- Nút xem chi tiết --}}
                                 <a href="{{ route('admin.events.show', $event->id) }}" class="btn btn-sm btn-outline-primary" title="Xem chi tiết">
                                     <i class="fa-solid fa-eye"></i>
+                                </a>
+
+                                {{-- Nút sửa --}}
+                                <a href="{{ route('admin.events.edit', $event->id) }}" class="btn btn-sm btn-outline-secondary" title="Sửa">
+                                    <i class="fa-solid fa-pen"></i>
                                 </a>
 
                                 {{-- Nút xóa --}}
@@ -204,10 +210,11 @@
             </table>
         </div>
     </div>
-    @if($events->hasPages())
+    @if(isset($events) && method_exists($events, 'hasPages') && $events->hasPages())
     <div class="card-footer bg-white">
         {{ $events->links() }}
     </div>
     @endif
+</div>
 </div>
 @endsection

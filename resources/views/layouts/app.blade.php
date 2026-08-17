@@ -7,14 +7,13 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>@yield('title', config('app.name', 'TLU Club Manager'))</title>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
-    <!-- Bootstrap 5 CSS & FontAwesome CDN fallback -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome CDN fallback -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
@@ -45,6 +44,11 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->is('admin/events*') ? 'active' : '' }}" href="{{ route('admin.events.index') }}">
+                                        <i class="fa-solid fa-calendar-check me-1"></i> Quản Lý Sự Kiện
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->is('admin/categories*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">
                                         <i class="fa-solid fa-tags me-1"></i> Danh Mục Sự Kiện
                                     </a>
@@ -68,6 +72,11 @@
                                 </li>
                             @endif
                             @if(Auth::user()->isClubManager())
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.events.index') ? 'active' : '' }}" href="{{ route('admin.events.index') }}">
+                                        <i class="fa-solid fa-calendar-check me-1"></i> Quản Lý Sự Kiện
+                                    </a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('manager.checkin.index') ? 'active' : '' }}" href="{{ route('manager.checkin.index') }}">
                                         <i class="fa-solid fa-qrcode me-1"></i> Quét QR Check-in

@@ -16,7 +16,10 @@ class CheckinController extends Controller
     public function index()
     {
         // Danh sách sự kiện đã duyệt và (có thể) đang diễn ra
-        $events = Event::where('status', 'approved')->orderBy('start_time', 'desc')->get();
+        $events = Event::where('status', 'approved')
+            ->where('end_time', '>=', Carbon::now())
+            ->orderBy('start_time', 'desc')
+            ->get();
         return view('manager.checkin.index', compact('events'));
     }
 
@@ -35,7 +38,6 @@ class CheckinController extends Controller
             $registration = EventRegistration::with('user')
                 ->where('qr_code_string', $qrString)
                 ->where('event_id', $eventId)
-                ->lockForUpdate()
                 ->first();
 
             if (!$registration) {
@@ -72,8 +74,9 @@ class CheckinController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Không lộ thông tin lỗi nội bộ ra ngoài
-            return response()->json(['success' => false, 'message' => 'Lỗi hệ thống, vui lòng thử lại.']);
+            // Log lỗi để dễ debug
+            \Illuminate\Support\Facades\Log::error($e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()]);
         }
     }
 }

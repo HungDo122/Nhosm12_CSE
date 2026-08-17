@@ -23,7 +23,9 @@ class EventController extends Controller
             ->orderBy('start_time', 'asc')
             ->get();
             
-        return view('student.events.index', compact('events'));
+        $registeredEventIds = Auth::check() ? Auth::user()->eventRegistrations()->pluck('event_id')->toArray() : [];
+            
+        return view('student.events.index', compact('events', 'registeredEventIds'));
     }
 
     public function myTickets()
@@ -88,7 +90,11 @@ class EventController extends Controller
                 'checkinLog'
             ])
             ->where('user_id', Auth::id())
-            ->findOrFail($id);
+            ->find($id);
+
+        if (!$registration) {
+            return redirect()->back()->with('error', 'Không tìm thấy chứng nhận này.');
+        }
 
         if (!$registration->checkinLog) {
             return redirect()->back()->with('error', 'Bạn chưa tham gia sự kiện này nên không thể tải chứng nhận!');

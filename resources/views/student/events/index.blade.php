@@ -1,14 +1,11 @@
 @extends('layouts.app')
 
+@section('title', 'Khám Phá Sự Kiện - TLU Club Manager')
+
 @section('content')
-<div class="container">
+<div class="container py-4">
     <h2 class="mb-4">Khám phá Sự kiện</h2>
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+
     <div class="row">
         @foreach($events as $event)
         <div class="col-md-4 mb-4">
@@ -21,7 +18,6 @@
                     <p class="mb-1 small"><strong>🕒 Thời gian:</strong> {{ \Carbon\Carbon::parse($event->start_time)->format('d/m/Y H:i') }}</p>
                     <div class="mt-3">
                         @php
-                            // Sử dụng registrations_count đã được load sẵn bằng withCount() — không gọi DB thêm
                             $registered = $event->registrations_count;
                             $percent = $event->capacity > 0 ? ($registered / $event->capacity) * 100 : 100;
                         @endphp
@@ -35,13 +31,22 @@
                     </div>
                 </div>
                 <div class="card-footer bg-white border-top-0 pb-3 pt-0">
-                    <form action="{{ route('student.events.register', $event->id) }}" method="POST">
-                        @csrf
-                        {{-- Dùng accessor $event->is_full thay vì kiểm tra thủ công --}}
-                        <button type="submit" class="btn btn-primary w-100 shadow-sm" style="border-radius: 8px;" {{ $event->is_full ? 'disabled' : '' }}>
-                            {{ $event->is_full ? 'Đã hết chỗ' : 'Đăng ký tham gia' }}
+                    @if(in_array($event->id, $registeredEventIds ?? []))
+                        <button class="btn btn-success fw-bold w-100 rounded-pill" disabled>
+                            <i class="fa-solid fa-check me-2"></i> Đã đăng ký
                         </button>
-                    </form>
+                    @elseif($event->registrations_count >= $event->capacity)
+                        <button class="btn btn-secondary fw-bold w-100 rounded-pill" disabled>
+                            Hết chỗ
+                        </button>
+                    @else
+                        <form action="{{ route('student.events.register', $event->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-primary fw-bold w-100 rounded-pill">
+                                Đăng ký tham gia <i class="fa-solid fa-arrow-right ms-2"></i>
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>

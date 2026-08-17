@@ -30,7 +30,14 @@ Route::middleware(['auth', 'role:admin,club_manager'])->group(function () {
     Route::post('/manager/checkin/process', [App\Http\Controllers\Manager\CheckinController::class, 'process'])->name('manager.checkin.process');
 });
 
-// Routes dành cho Admin (Quản lý CLB, Thành viên CLB, Danh mục sự kiện, Người dùng, Sự kiện)
+// Routes dùng chung cho Admin và Club Manager (Quản lý Sự kiện)
+Route::middleware(['auth', 'role:admin,club_manager'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('events', AdminEventController::class);
+    Route::patch('events/{event}/approve', [AdminEventController::class, 'approve'])->name('events.approve');
+    Route::patch('events/{event}/reject', [AdminEventController::class, 'reject'])->name('events.reject');
+});
+
+// Routes dành cho Admin (Quản lý CLB, Thành viên CLB, Danh mục sự kiện, Người dùng)
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('clubs', ClubController::class);
     Route::post('clubs/{club}/members', [ClubMemberController::class, 'store'])->name('clubs.members.store');
@@ -42,9 +49,4 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Fix 2: Thêm except(['create', 'store', 'show']) — không có view show cho users
     Route::resource('users', UserController::class)->except(['create', 'store', 'show']);
-
-    // Fix 3: Admin quản lý và duyệt sự kiện
-    Route::resource('events', AdminEventController::class)->only(['index', 'show', 'destroy']);
-    Route::patch('events/{event}/approve', [AdminEventController::class, 'approve'])->name('events.approve');
-    Route::patch('events/{event}/reject', [AdminEventController::class, 'reject'])->name('events.reject');
 });

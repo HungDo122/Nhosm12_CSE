@@ -3,12 +3,7 @@
 @section('content')
 <div class="container">
     <h2 class="mb-4">Sự kiện của tôi</h2>
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
+
     <div class="row">
         @foreach($registrations as $reg)
         <div class="col-md-6 mb-4">
@@ -48,8 +43,8 @@
                     <div class="modal-body text-center pb-4 pt-0">
                         <h5 class="mb-2 fw-bold">Vé Tham Gia</h5>
                         <p class="text-muted small mb-4">{{ $reg->event->name }}</p>
-                        <div class="p-3 bg-white d-inline-block rounded shadow-sm border">
-                            {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(200)->generate($reg->qr_code_string) !!}
+                        <div class="p-3 bg-white d-inline-block rounded shadow-sm border" style="background-color: white !important;">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={{ urlencode($reg->qr_code_string) }}&bgcolor=ffffff&color=000000&margin=10" alt="QR Code" class="img-fluid" style="filter: none !important;">
                         </div>
                         <p class="mt-4 small text-muted mb-0">Mã: {{ $reg->qr_code_string }}</p>
                         <p class="small text-muted">Vui lòng đưa mã này cho ban tổ chức.</p>

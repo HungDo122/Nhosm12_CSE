@@ -79,6 +79,10 @@ class ClubController extends Controller
     // Xóa CLB
     public function destroy(Club $club)
     {
+        if ($club->events()->count() > 0 || $club->members()->count() > 0) {
+            return redirect()->route('admin.clubs.index')->with('error', 'Không thể xóa CLB đang có thành viên hoặc sự kiện!');
+        }
+
         $club->delete();
         return redirect()->route('admin.clubs.index')->with('success', 'Đã xóa câu lạc bộ!');
     }

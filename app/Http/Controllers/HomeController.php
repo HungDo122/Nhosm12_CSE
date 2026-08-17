@@ -23,6 +23,16 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.clubs.index');
+        } elseif ($user->isClubManager()) {
+            return redirect()->route('manager.checkin.index');
+        } elseif ($user->isStudent()) {
+            return redirect()->route('student.events.index');
+        }
+
         return view('home');
     }
 }

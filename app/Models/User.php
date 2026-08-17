@@ -51,7 +51,10 @@ class User extends Authenticatable
 
     public function managedClubs()
     {
-        return $this->hasMany(Club::class, 'manager_id');
+        return $this->belongsToMany(Club::class, 'club_members')
+                    ->wherePivot('role', 'leader')
+                    ->withPivot('role', 'is_manager')
+                    ->withTimestamps();
     }
 
     public function clubMemberships()
