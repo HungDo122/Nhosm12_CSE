@@ -93,8 +93,6 @@ class EventController extends Controller
             $rules['status'] = 'required|in:pending,approved,rejected';
         }
 
-        $request->validate($rules);
-
         // Security check for manager
         if (!$user->isAdmin()) {
             $clubIds = $user->managedClubs->pluck('id')->toArray();
@@ -103,7 +101,9 @@ class EventController extends Controller
             }
         }
 
-        $data = $request->validated();
+        // $request->validate() trả về mảng dữ liệu đã validate — ĐÚNG cách dùng trong controller
+        $data = $request->validate($rules);
+
         if (!$user->isAdmin()) {
             $data['status'] = 'pending';
         }
@@ -178,11 +178,11 @@ class EventController extends Controller
             $rules['status'] = 'required|in:pending,approved,rejected';
         }
 
-        $request->validate($rules);
+        // $request->validate() trả về mảng dữ liệu đã validate — ĐÚNG cách dùng trong controller
+        $data = $request->validate($rules);
 
-        $data = $request->validated();
-        
         if (!$user->isAdmin()) {
+            // Manager không được đổi status — giữ nguyên
             unset($data['status']);
         }
 
