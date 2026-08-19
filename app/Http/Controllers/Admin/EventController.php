@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\Club;
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -45,16 +47,27 @@ class EventController extends Controller
         
         if ($user->isAdmin()) {
             $clubs = Club::orderBy('name')->get();
+            $clubIdsForStats = [];
         } else {
             $clubs = $user->managedClubs;
+            $clubIdsForStats = $user->managedClubs->pluck('id')->toArray();
         }
 
-        // Thống kê nhanh
+        // Thống kê nhanh: Tối ưu hoá gom thành 1 truy vấn
+        $statsQuery = Event::query();
+        if (!$user->isAdmin()) {
+            $statsQuery->whereIn('club_id', $clubIdsForStats);
+        }
+        
+        $rawStats = $statsQuery->selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
         $stats = [
-            'total'    => $user->isAdmin() ? Event::count() : Event::whereIn('club_id', $user->managedClubs->pluck('id')->toArray())->count(),
-            'pending'  => $user->isAdmin() ? Event::where('status', 'pending')->count() : Event::whereIn('club_id', $user->managedClubs->pluck('id')->toArray())->where('status', 'pending')->count(),
-            'approved' => $user->isAdmin() ? Event::where('status', 'approved')->count() : Event::whereIn('club_id', $user->managedClubs->pluck('id')->toArray())->where('status', 'approved')->count(),
-            'rejected' => $user->isAdmin() ? Event::where('status', 'rejected')->count() : Event::whereIn('club_id', $user->managedClubs->pluck('id')->toArray())->where('status', 'rejected')->count(),
+            'total'    => $rawStats->sum(),
+            'pending'  => $rawStats->get('pending', 0),
+            'approved' => $rawStats->get('approved', 0),
+            'rejected' => $rawStats->get('rejected', 0),
         ];
 
         return view('admin.events.index', compact('events', 'clubs', 'stats'));
@@ -74,37 +87,11 @@ class EventController extends Controller
         return view('admin.events.create', compact('clubs', 'categories'));
     }
 
-    public function store(Request $request)
+    public function store(StoreEventRequest $request)
     {
-        $user = Auth::user();
-        
-        $rules = [
-            'club_id' => 'required|exists:clubs,id',
-            'category_id' => 'required|exists:event_categories,id',
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'location' => 'required|string|max:255',
-            'capacity' => 'required|integer|min:1',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
-        ];
+        $data = $request->validated();
 
-        if ($user->isAdmin()) {
-            $rules['status'] = 'required|in:pending,approved,rejected';
-        }
-
-        // Security check for manager
-        if (!$user->isAdmin()) {
-            $clubIds = $user->managedClubs->pluck('id')->toArray();
-            if (!in_array($request->club_id, $clubIds)) {
-                abort(403, 'Bạn không có quyền tạo sự kiện cho CLB này.');
-            }
-        }
-
-        // $request->validate() trả về mảng dữ liệu đã validate — ĐÚNG cách dùng trong controller
-        $data = $request->validate($rules);
-
-        if (!$user->isAdmin()) {
+        if (!Auth::user()->isAdmin()) {
             $data['status'] = 'pending';
         }
 
@@ -118,13 +105,7 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        $user = Auth::user();
-        if (!$user->isAdmin()) {
-            $clubIds = $user->managedClubs->pluck('id')->toArray();
-            if (!in_array($event->club_id, $clubIds)) {
-                abort(403, 'Bạn không có quyền xem sự kiện này.');
-            }
-        }
+        $this->authorize('view', $event);
 
         $event->load(['club', 'category', 'registrations.user', 'registrations.checkinLog']);
         return view('admin.events.show', compact('event'));
@@ -132,14 +113,8 @@ class EventController extends Controller
 
     public function edit(Event $event)
     {
+        $this->authorize('update', $event);
         $user = Auth::user();
-        
-        if (!$user->isAdmin()) {
-            $clubIds = $user->managedClubs->pluck('id')->toArray();
-            if (!in_array($event->club_id, $clubIds)) {
-                abort(403, 'Bạn không có quyền sửa sự kiện này.');
-            }
-        }
 
         if ($user->isAdmin()) {
             $clubs = Club::where('status', 'active')->get();
@@ -152,37 +127,11 @@ class EventController extends Controller
         return view('admin.events.edit', compact('event', 'clubs', 'categories'));
     }
 
-    public function update(Request $request, Event $event)
+    public function update(UpdateEventRequest $request, Event $event)
     {
-        $user = Auth::user();
-
-        if (!$user->isAdmin()) {
-            $clubIds = $user->managedClubs->pluck('id')->toArray();
-            if (!in_array($event->club_id, $clubIds)) {
-                abort(403, 'Bạn không có quyền sửa sự kiện này.');
-            }
-        }
-
-        $rules = [
-            'club_id' => 'required|exists:clubs,id',
-            'category_id' => 'required|exists:event_categories,id',
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'location' => 'required|string|max:255',
-            'capacity' => 'required|integer|min:1',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
-        ];
-
-        if ($user->isAdmin()) {
-            $rules['status'] = 'required|in:pending,approved,rejected';
-        }
-
-        // $request->validate() trả về mảng dữ liệu đã validate — ĐÚNG cách dùng trong controller
-        $data = $request->validate($rules);
-
-        if (!$user->isAdmin()) {
-            // Manager không được đổi status — giữ nguyên
+        $data = $request->validated();
+        
+        if (!Auth::user()->isAdmin()) {
             unset($data['status']);
         }
 
@@ -196,10 +145,7 @@ class EventController extends Controller
      */
     public function approve(Event $event)
     {
-        $user = Auth::user();
-        if (!$user->isAdmin()) {
-            abort(403, 'Bạn không có quyền duyệt sự kiện.');
-        }
+        $this->authorize('approve', $event);
 
         if ($event->status !== 'pending') {
             return redirect()->back()->with('error', 'Chỉ có thể duyệt sự kiện đang chờ duyệt!');
@@ -215,10 +161,7 @@ class EventController extends Controller
      */
     public function reject(Event $event)
     {
-        $user = Auth::user();
-        if (!$user->isAdmin()) {
-            abort(403, 'Bạn không có quyền từ chối sự kiện.');
-        }
+        $this->authorize('reject', $event);
 
         if ($event->status !== 'pending') {
             return redirect()->back()->with('error', 'Chỉ có thể từ chối sự kiện đang chờ duyệt!');
@@ -234,14 +177,7 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
-        $user = Auth::user();
-
-        if (!$user->isAdmin()) {
-            $clubIds = $user->managedClubs->pluck('id')->toArray();
-            if (!in_array($event->club_id, $clubIds)) {
-                abort(403, 'Bạn không có quyền xóa sự kiện này.');
-            }
-        }
+        $this->authorize('delete', $event);
 
         $event->delete();
         return redirect()->route('admin.events.index')->with('success', 'Đã xóa sự kiện!');

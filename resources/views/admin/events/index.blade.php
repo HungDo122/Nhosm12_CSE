@@ -10,19 +10,6 @@
     <a href="{{ route('admin.events.create') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-1"></i>Tạo sự kiện</a>
 </div>
 
-{{-- Flash Messages --}}
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fa-solid fa-circle-check me-2"></i>{{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fa-solid fa-circle-xmark me-2"></i>{{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
 
 {{-- Thống kê nhanh --}}
 <div class="row g-3 mb-4">

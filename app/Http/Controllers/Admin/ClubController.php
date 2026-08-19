@@ -25,19 +25,14 @@ class ClubController extends Controller
     // Lưu CLB vào DB
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:clubs,name',
-            'code' => 'nullable|string|max:50|unique:clubs,code',
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255|unique:clubs,name',
+            'code'        => 'nullable|string|max:50|unique:clubs,code',
             'description' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
+            'status'      => 'required|in:active,inactive',
         ]);
 
-        Club::create([
-            'name' => $request->name,
-            'code' => $request->code,
-            'description' => $request->description,
-            'status' => $request->status,
-        ]);
+        Club::create($validated);
 
         return redirect()->route('admin.clubs.index')->with('success', 'Thêm câu lạc bộ thành công!');
     }
@@ -46,7 +41,11 @@ class ClubController extends Controller
     public function show(Club $club)
     {
         $club->load(['members.user', 'leaders']);
-        $users = User::orderBy('name')->get();
+        // Optimization: Don't load all users. Only load a limited number of non-members.
+        $users = User::whereNotIn('id', $club->members->pluck('user_id'))
+                     ->orderBy('name')
+                     ->limit(50)
+                     ->get();
         return view('admin.clubs.show', compact('club', 'users'));
     }
 
@@ -59,19 +58,14 @@ class ClubController extends Controller
     // Cập nhật CLB
     public function update(Request $request, Club $club)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:clubs,name,' . $club->id,
-            'code' => 'nullable|string|max:50|unique:clubs,code,' . $club->id,
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255|unique:clubs,name,' . $club->id,
+            'code'        => 'nullable|string|max:50|unique:clubs,code,' . $club->id,
             'description' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
+            'status'      => 'required|in:active,inactive',
         ]);
 
-        $club->update([
-            'name' => $request->name,
-            'code' => $request->code,
-            'description' => $request->description,
-            'status' => $request->status,
-        ]);
+        $club->update($validated);
 
         return redirect()->route('admin.clubs.index')->with('success', 'Cập nhật câu lạc bộ thành công!');
     }

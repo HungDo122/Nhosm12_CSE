@@ -74,9 +74,8 @@ class CheckinController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Log lỗi để dễ debug
-            \Illuminate\Support\Facades\Log::error($e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()]);
+            \Illuminate\Support\Facades\Log::error('Checkin error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Lỗi hệ thống, vui lòng thử lại.']);
         }
     }
 }

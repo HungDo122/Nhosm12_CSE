@@ -22,6 +22,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/student/my-tickets', [App\Http\Controllers\Student\EventController::class, 'myTickets'])->name('student.my_tickets');
     Route::post('/student/events/{id}/register', [App\Http\Controllers\Student\EventController::class, 'register'])->name('student.events.register');
     Route::get('/student/events/{id}/certificate', [App\Http\Controllers\Student\EventController::class, 'downloadCertificate'])->name('student.events.certificate');
+    Route::get('/student/points', [App\Http\Controllers\Student\EventController::class, 'myPoints'])->name('student.points');
 });
 
 // Routes cho Manager (Quản lý Check-in) — chỉ admin và club_manager mới được vào

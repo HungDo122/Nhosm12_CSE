@@ -21,7 +21,7 @@ class EventController extends Controller
             ->withCount('registrations')
             ->where('status', 'approved')
             ->orderBy('start_time', 'asc')
-            ->get();
+            ->paginate(12);
             
         $registeredEventIds = Auth::check() ? Auth::user()->eventRegistrations()->pluck('event_id')->toArray() : [];
             
@@ -36,6 +36,18 @@ class EventController extends Controller
             ->get();
             
         return view('student.events.my_tickets', compact('registrations'));
+    }
+
+    public function myPoints()
+    {
+        $points = \App\Models\StudentPoint::with('event')
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $total = $points->sum('points');
+
+        return view('student.points.index', compact('points', 'total'));
     }
 
     public function register(Request $request, $id)

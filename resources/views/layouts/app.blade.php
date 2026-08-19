@@ -70,6 +70,11 @@
                                         <i class="fa-solid fa-ticket me-1"></i> Vé Của Tôi
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('student.points') ? 'active' : '' }}" href="{{ route('student.points') }}">
+                                        <i class="fa-solid fa-star me-1"></i> Điểm Hoạt Động
+                                    </a>
+                                </li>
                             @endif
                             @if(Auth::user()->isClubManager())
                                 <li class="nav-item">

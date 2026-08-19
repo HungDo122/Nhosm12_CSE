@@ -58,6 +58,12 @@
         </div>
         @endif
     </div>
+
+    @if(isset($events) && method_exists($events, 'hasPages') && $events->hasPages())
+    <div class="d-flex justify-content-center mt-4">
+        {{ $events->links() }}
+    </div>
+    @endif
 </div>
 
 <style>
